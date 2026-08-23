@@ -51,13 +51,17 @@ public class AuthDTO {
         private String email;
         private String displayName;
         private String authProvider;
+        private String profilePictureUrl;
+        private String mobileNumber;
         private String createdAt;
 
-        public UserResponse(String id, String email, String displayName, String authProvider, String createdAt) {
+        public UserResponse(String id, String email, String displayName, String authProvider, String profilePictureUrl, String mobileNumber, String createdAt) {
             this.id = id;
             this.email = email;
             this.displayName = displayName;
             this.authProvider = authProvider;
+            this.profilePictureUrl = profilePictureUrl;
+            this.mobileNumber = mobileNumber;
             this.createdAt = createdAt;
         }
     }
@@ -74,5 +78,15 @@ public class AuthDTO {
     @Data
     public static class OAuth2CallbackRequest {
         private String code;
+    }
+
+    @Data
+    public static class UpdateProfileRequest {
+        @NotBlank(message = "Display name is required")
+        @Size(min = 2, max = 100, message = "Display name must be 2-100 characters")
+        private String displayName;
+
+        private String mobileNumber;
+        private String profilePictureUrl;
     }
 }

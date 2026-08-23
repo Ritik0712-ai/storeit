@@ -19,14 +19,23 @@ public class FolderController {
     private final FolderService folderService;
 
     @PostMapping
-    public ResponseEntity<FolderDTO.FolderResponse> createFolder(
+    public ResponseEntity<FolderDTO.FolderWithChildrenResponse> createFolder(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody FolderDTO.CreateRequest request) {
-        FolderDTO.FolderResponse response = folderService.createFolder(
+        FolderDTO.FolderWithChildrenResponse response = folderService.createFolder(
                 user.getId(),
-                user,
                 request.getName(),
                 request.getParentFolderId()
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/root")
+    public ResponseEntity<FolderDTO.FolderWithChildrenResponse> getRootFolder(
+            @AuthenticationPrincipal User user) {
+        FolderDTO.FolderWithChildrenResponse response = folderService.getFolder(
+                null,
+                user.getId()
         );
         return ResponseEntity.ok(response);
     }
@@ -35,10 +44,9 @@ public class FolderController {
     public ResponseEntity<FolderDTO.FolderWithChildrenResponse> getFolder(
             @AuthenticationPrincipal User user,
             @PathVariable UUID id) {
-        FolderDTO.FolderWithChildrenResponse response = folderService.getFolderWithChildren(
-                user.getId(),
-                user,
-                id
+        FolderDTO.FolderWithChildrenResponse response = folderService.getFolder(
+                id,
+                user.getId()
         );
         return ResponseEntity.ok(response);
     }
@@ -50,7 +58,6 @@ public class FolderController {
             @RequestBody FolderDTO.UpdateRequest request) {
         FolderDTO.FolderResponse response = folderService.updateFolder(
                 user.getId(),
-                user,
                 id,
                 request.getName(),
                 request.getParentFolderId()

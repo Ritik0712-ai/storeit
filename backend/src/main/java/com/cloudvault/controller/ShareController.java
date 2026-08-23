@@ -27,9 +27,9 @@ public class ShareController {
     }
 
     @GetMapping("/shared-with-me")
-    public ResponseEntity<ShareDTO.SharedWithMeResponse> getSharedWithMe(
+    public ResponseEntity<java.util.List<ShareDTO.ShareResponse>> getSharedWithMe(
             @AuthenticationPrincipal User user) {
-        ShareDTO.SharedWithMeResponse response = shareService.getSharedWithMe(user.getId());
+        java.util.List<ShareDTO.ShareResponse> response = shareService.getSharedWithMe(user.getId());
         return ResponseEntity.ok(response);
     }
 

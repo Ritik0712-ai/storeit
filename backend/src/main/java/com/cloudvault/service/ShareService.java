@@ -109,7 +109,7 @@ public class ShareService {
         // Check if link already exists
         Optional<PublicLink> existingLink = publicLinkRepository.findActiveByResource(resourceType, resourceId);
         if (existingLink.isPresent()) {
-            return ShareDTO.PublicLinkResponse.from(existingLink.get());
+            return ShareDTO.PublicLinkResponse.from(existingLink.get(), "");
         }
 
         String token = UUID.randomUUID().toString() + UUID.randomUUID().toString().replace("-", "");
@@ -134,7 +134,7 @@ public class ShareService {
                 .build();
 
         link = publicLinkRepository.save(link);
-        return ShareDTO.PublicLinkResponse.from(link);
+        return ShareDTO.PublicLinkResponse.from(link, "");
     }
 
     @Transactional(readOnly = true)
@@ -158,8 +158,8 @@ public class ShareService {
         response.setResourceName(resourceName);
         response.setOwnerName(ownerName);
         response.setRequiresPassword(link.getPasswordHash() != null);
-        response.setIsExpired(link.isExpired());
-        response.setIsRevoked(link.isRevoked());
+        response.setExpired(link.isExpired());
+        response.setRevoked(link.isRevoked());
 
         return response;
     }

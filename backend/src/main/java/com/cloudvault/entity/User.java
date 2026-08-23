@@ -33,6 +33,12 @@ public class User {
     @Enumerated(EnumType.STRING)
     private AuthProvider authProvider;
 
+    @Column(name = "profile_picture_url", length = 500)
+    private String profilePictureUrl;
+
+    @Column(name = "mobile_number", length = 20)
+    private String mobileNumber;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

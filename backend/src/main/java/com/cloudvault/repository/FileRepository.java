@@ -30,4 +30,7 @@ public interface FileRepository extends JpaRepository<FileEntity, UUID> {
 
     @Query("SELECT f FROM FileEntity f WHERE f.owner.id = :ownerId AND LOWER(f.name) LIKE LOWER(CONCAT('%', :query, '%')) AND f.deletedAt IS NULL")
     List<FileEntity> searchByName(@Param("ownerId") UUID ownerId, @Param("query") String query);
+
+    @Query("SELECT COALESCE(SUM(f.sizeBytes), 0) FROM FileEntity f WHERE f.owner.id = :ownerId AND f.deletedAt IS NULL")
+    Long calculateStorageUsedByOwnerId(@Param("ownerId") UUID ownerId);
 }

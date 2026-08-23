@@ -1,5 +1,6 @@
 package com.cloudvault.service;
 
+import com.cloudvault.dto.FileDTO;
 import com.cloudvault.dto.FolderDTO;
 import com.cloudvault.entity.FileEntity;
 import com.cloudvault.entity.Folder;
@@ -7,6 +8,7 @@ import com.cloudvault.entity.User;
 import com.cloudvault.repository.FileRepository;
 import com.cloudvault.repository.FolderRepository;
 import com.cloudvault.repository.StarRepository;
+import com.cloudvault.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +23,15 @@ public class FolderService {
     private final FolderRepository folderRepository;
     private final FileRepository fileRepository;
     private final StarRepository starRepository;
+    private final UserRepository userRepository;
     private final PermissionService permissionService;
     private final StorageService storageService;
 
     @Transactional
-    public FolderDTO.FolderWithChildrenResponse createFolder(UUID userId, User user, String name, UUID parentFolderId) {
+    public FolderDTO.FolderWithChildrenResponse createFolder(UUID userId, String name, UUID parentFolderId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
         Folder parentFolder = null;
 
         if (parentFolderId != null) {
@@ -205,13 +211,6 @@ public class FolderService {
         for (FileEntity file : files) {
             file.setDeletedAt(Instant.now());
             fileRepository.save(file);
-        }
-    }
-
-    // Inner DTO import
-    private static class FileDTO {
-        static com.cloudvault.dto.FileDTO.FileResponse from(FileEntity file) {
-            return com.cloudvault.dto.FileDTO.FileResponse.from(file);
         }
     }
 }

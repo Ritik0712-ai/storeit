@@ -6,16 +6,17 @@ spring:
     name: cloudvault
 
   datasource:
-    url: ${DATABASE_URL}
-    username: ${DATABASE_USER:}
+    url: jdbc:postgresql://${DB_HOST:aws-0-ap-south-1.pooler.supabase.com}:${DB_PORT:6543}/${DB_NAME:postgres}?prepareThreshold=0
+    username: ${DATABASE_USER:postgres.bfyhlwuxtmokvfwagfcx}
     password: ${DATABASE_PASSWORD:}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
-      minimum-idle: 5
+      minimum-idle: 2
       connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
+      idle-timeout: 30000
+      max-lifetime: 120000
+      connection-test-query: SELECT 1
 
   jpa:
     hibernate:
@@ -27,7 +28,7 @@ spring:
         format_sql: true
 
   flyway:
-    enabled: true
+    enabled: false
     locations: classpath:db/migration
     baseline-on-migrate: true
 
@@ -39,7 +40,7 @@ spring:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
             scope: openid, profile, email
-            redirect-uri: ${FRONTEND_ORIGIN}/oauth/callback
+            redirect-uri: ${SERVER_URL:http://localhost:8080}/login/oauth2/code/google
         provider:
           google:
             authorization-uri: https://accounts.google.com/o/oauth2/v2/auth

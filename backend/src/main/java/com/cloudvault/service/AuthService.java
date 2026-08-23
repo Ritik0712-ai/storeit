@@ -39,12 +39,23 @@ public class AuthService {
                 .authProvider(User.AuthProvider.local)
                 .build();
 
-        user = userRepository.save(user);
+        user = userRepository.saveAndFlush(user);
 
         String accessToken = tokenProvider.generateAccessToken(user.getId(), user.getEmail());
+        String refreshToken = UUID.randomUUID().toString() + UUID.randomUUID().toString().replace("-", "");
+
+        // Save refresh token hash
+        RefreshToken refreshTokenEntity = RefreshToken.builder()
+                .user(user)
+                .tokenHash(hashToken(refreshToken))
+                .expiresAt(Instant.now().plusSeconds(7 * 24 * 60 * 60))
+                .revoked(false)
+                .build();
+        refreshTokenRepository.save(refreshTokenEntity);
 
         return new AuthDTO.AuthResponse(
                 accessToken,
+                refreshToken,
                 toUserResponse(user)
         );
     }
@@ -59,17 +70,27 @@ public class AuthService {
         }
 
         String accessToken = tokenProvider.generateAccessToken(user.getId(), user.getEmail());
+        String refreshToken = UUID.randomUUID().toString() + UUID.randomUUID().toString().replace("-", "");
+
+        // Save refresh token hash
+        RefreshToken refreshTokenEntity = RefreshToken.builder()
+                .user(user)
+                .tokenHash(hashToken(refreshToken))
+                .expiresAt(Instant.now().plusSeconds(7 * 24 * 60 * 60))
+                .revoked(false)
+                .build();
+        refreshTokenRepository.save(refreshTokenEntity);
 
         return new AuthDTO.AuthResponse(
                 accessToken,
+                refreshToken,
                 toUserResponse(user)
         );
     }
 
     @Transactional
-    public void logout(String token) {
-        String tokenHash = hashToken(token);
-        refreshTokenRepository.revokeByTokenHash(tokenHash);
+    public void logout(UUID userId) {
+        refreshTokenRepository.revokeAllByUserId(userId);
     }
 
     @Transactional
@@ -92,13 +113,34 @@ public class AuthService {
         return toUserResponse(user);
     }
 
+    @Transactional
+    public AuthDTO.UserResponse updateProfile(UUID userId, AuthDTO.UpdateProfileRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        
+        if (request.getDisplayName() != null) {
+            user.setDisplayName(request.getDisplayName());
+        }
+        if (request.getMobileNumber() != null) {
+            user.setMobileNumber(request.getMobileNumber());
+        }
+        if (request.getProfilePictureUrl() != null) {
+            user.setProfilePictureUrl(request.getProfilePictureUrl());
+        }
+        
+        user = userRepository.save(user);
+        return toUserResponse(user);
+    }
+
     private AuthDTO.UserResponse toUserResponse(User user) {
         return new AuthDTO.UserResponse(
                 user.getId().toString(),
                 user.getEmail(),
                 user.getDisplayName(),
                 user.getAuthProvider().name().toLowerCase(),
-                user.getCreatedAt().toString()
+                user.getProfilePictureUrl(),
+                user.getMobileNumber(),
+                user.getCreatedAt() != null ? user.getCreatedAt().toString() : Instant.now().toString()
         );
     }
 

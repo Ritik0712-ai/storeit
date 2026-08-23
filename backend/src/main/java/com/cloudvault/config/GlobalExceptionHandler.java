@@ -47,7 +47,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDTO> handleGenericException(Exception ex) {
+        ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorDTO("An unexpected error occurred", 500));
+                .body(new ErrorDTO("An unexpected error occurred: " + ex.getMessage(), 500));
     }
 }

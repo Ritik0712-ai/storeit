@@ -25,7 +25,6 @@ public class FileController {
             @Valid @RequestBody FileDTO.InitUploadRequest request) {
         FileDTO.InitUploadResponse response = fileService.initUpload(
                 user.getId(),
-                user,
                 request
         );
         return ResponseEntity.ok(response);
@@ -38,18 +37,23 @@ public class FileController {
             @RequestBody(required = false) Map<String, String> body) {
         FileDTO.FileResponse response = fileService.completeUpload(
                 user.getId(),
-                user,
                 id,
                 body != null ? body.get("checksum") : null
         );
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/storage-used")
+    public ResponseEntity<Map<String, Long>> getStorageUsed(@AuthenticationPrincipal User user) {
+        Long used = fileService.getStorageUsed(user.getId());
+        return ResponseEntity.ok(Map.of("storageUsed", used));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<FileDTO.FileResponse> getFile(
             @AuthenticationPrincipal User user,
             @PathVariable UUID id) {
-        FileDTO.FileResponse response = fileService.getFile(user.getId(), user, id);
+        FileDTO.FileResponse response = fileService.getFile(user.getId(), id);
         return ResponseEntity.ok(response);
     }
 
@@ -57,7 +61,7 @@ public class FileController {
     public ResponseEntity<Map<String, String>> getDownloadUrl(
             @AuthenticationPrincipal User user,
             @PathVariable UUID id) {
-        String downloadUrl = fileService.getDownloadUrl(user.getId(), user, id);
+        String downloadUrl = fileService.getDownloadUrl(user.getId(), id);
         return ResponseEntity.ok(Map.of("downloadUrl", downloadUrl));
     }
 
@@ -68,7 +72,6 @@ public class FileController {
             @RequestBody FileDTO.UpdateRequest request) {
         FileDTO.FileResponse response = fileService.updateFile(
                 user.getId(),
-                user,
                 id,
                 request.getName(),
                 request.getFolderId()
@@ -80,7 +83,7 @@ public class FileController {
     public ResponseEntity<Void> deleteFile(
             @AuthenticationPrincipal User user,
             @PathVariable UUID id) {
-        fileService.deleteFile(user.getId(), user, id);
+        fileService.deleteFile(user.getId(), id);
         return ResponseEntity.noContent().build();
     }
 }

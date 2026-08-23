@@ -159,7 +159,7 @@ public class TrashService {
         for (FileEntity file : files) {
             // Delete stars
             starRepository.deleteByResource(Share.ResourceType.FILE, file.getId());
-            folderRepository.delete(file);
+            fileRepository.delete(file);
         }
 
         // Delete stars for this folder

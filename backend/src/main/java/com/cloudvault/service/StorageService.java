@@ -24,14 +24,37 @@ public class StorageService {
     public String generateUploadUrl(UUID fileId) {
         String storagePath = generateStoragePath(fileId);
 
-        // For Supabase Storage v2, we'll use their REST API to generate a signed URL
-        // The client will upload directly to Supabase Storage
-        String uploadUrl = String.format("%s/storage/v1/object/upload/%s/%s",
+        // Generate a signed upload URL via Supabase REST API
+        String url = String.format("%s/storage/v1/object/upload/sign/%s/%s",
                 storageConfig.getUrl(),
                 storageConfig.getStorageBucket(),
                 storagePath);
 
-        return uploadUrl;
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("Authorization", "Bearer " + storageConfig.getServiceRoleKey())
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString("{}"))
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                // Parse the response to get the signed URL fragment
+                // Response is JSON like: {"url": "/object/upload/sign/cloudvault-files/...?token=..."}
+                String responseBody = response.body();
+                int urlStart = responseBody.indexOf("\"url\":\"") + 7;
+                int urlEnd = responseBody.indexOf("\"", urlStart);
+                String urlFragment = responseBody.substring(urlStart, urlEnd);
+                
+                return storageConfig.getUrl() + "/storage/v1" + urlFragment;
+            }
+
+            throw new RuntimeException("Failed to generate upload URL: " + response.body());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException("Failed to generate upload URL", e);
+        }
     }
 
     /**
@@ -50,18 +73,19 @@ public class StorageService {
                     .uri(URI.create(url))
                     .header("Authorization", "Bearer " + storageConfig.getServiceRoleKey())
                     .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.noBody())
+                    .POST(HttpRequest.BodyPublishers.ofString("{\"expiresIn\": 3600}"))
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
                 // Parse the response to get the signed URL
-                // The response is JSON: {"url": "https://..."}
+                // The response is JSON: {"signedURL": "/object/sign/..."}
                 String responseBody = response.body();
-                int urlStart = responseBody.indexOf("\"url\":\"") + 7;
+                int urlStart = responseBody.indexOf("\"signedURL\":\"") + 13;
                 int urlEnd = responseBody.indexOf("\"", urlStart);
-                return responseBody.substring(urlStart, urlEnd);
+                String urlFragment = responseBody.substring(urlStart, urlEnd);
+                return storageConfig.getUrl() + "/storage/v1" + urlFragment;
             }
 
             throw new RuntimeException("Failed to generate download URL: " + response.body());

@@ -7,6 +7,7 @@ import com.cloudvault.entity.User;
 import com.cloudvault.repository.FileRepository;
 import com.cloudvault.repository.FolderRepository;
 import com.cloudvault.repository.StarRepository;
+import com.cloudvault.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,11 +23,12 @@ public class FileService {
     private final FileRepository fileRepository;
     private final FolderRepository folderRepository;
     private final StarRepository starRepository;
+    private final UserRepository userRepository;
     private final PermissionService permissionService;
     private final StorageService storageService;
 
     @Transactional
-    public FileDTO.InitUploadResponse initUpload(UUID userId, User user, FileDTO.InitUploadRequest request) {
+    public FileDTO.InitUploadResponse initUpload(UUID userId, FileDTO.InitUploadRequest request) {
         // Validate folder access if uploading to a folder
         if (request.getFolderId() != null) {
             if (permissionService.checkFolderPermission(userId, request.getFolderId(), PermissionService.Permission.EDIT)
@@ -35,12 +37,17 @@ public class FileService {
             }
         }
 
+        // Get owner user
+        User owner = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
         FileEntity file = FileEntity.builder()
                 .name(request.getFileName())
                 .mimeType(request.getMimeType())
                 .sizeBytes(request.getSizeBytes())
-                .owner(user)
+                .owner(owner)
                 .uploadStatus(FileEntity.UploadStatus.PENDING)
+                .storagePath("temp") // temporary dummy path
                 .build();
 
         if (request.getFolderId() != null) {
@@ -48,8 +55,9 @@ public class FileService {
             file.setFolder(folder);
         }
 
+        file = fileRepository.save(file);
+        
         file.setStoragePath(storageService.generateStoragePath(file.getId()));
-
         file = fileRepository.save(file);
 
         String uploadUrl = storageService.generateUploadUrl(file.getId());
@@ -153,5 +161,10 @@ public class FileService {
         response.setIsStarred(starRepository.existsByUserIdAndResourceTypeAndResourceId(
                 userId, com.cloudvault.entity.Share.ResourceType.FILE, file.getId()));
         return response;
+    }
+
+    @Transactional(readOnly = true)
+    public Long getStorageUsed(UUID userId) {
+        return fileRepository.calculateStorageUsedByOwnerId(userId);
     }
 }
