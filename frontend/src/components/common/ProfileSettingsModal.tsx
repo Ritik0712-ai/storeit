@@ -9,16 +9,16 @@ interface ProfileSettingsModalProps {
 }
 
 export default function ProfileSettingsModal({ onClose }: ProfileSettingsModalProps) {
-  const { user, login } = useAuthStore() // reuse login to update the user object in context
+  const { user, setUser } = useAuthStore()
   const { showToast } = useToast()
-  
+
   const [displayName, setDisplayName] = useState(user?.displayName || '')
   const [mobileNumber, setMobileNumber] = useState(user?.mobileNumber || '')
   const [profilePictureUrl, setProfilePictureUrl] = useState(user?.profilePictureUrl || '')
-  
+
   const [isSaving, setIsSaving] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleSave = async (e: React.FormEvent) => {
@@ -32,9 +32,7 @@ export default function ProfileSettingsModal({ onClose }: ProfileSettingsModalPr
         mobileNumber: mobileNumber.trim(),
         profilePictureUrl
       })
-      // update the auth store with the new user data
-      // we can simulate this by just manually updating the state or if our store supports it
-      login(updatedUser, localStorage.getItem('access_token') || '') // Re-using login to set user and token
+      setUser(updatedUser)
       showToast('success', 'Profile updated successfully')
       onClose()
     } catch (error) {
@@ -63,14 +61,15 @@ export default function ProfileSettingsModal({ onClose }: ProfileSettingsModalPr
     try {
       const { profilePictureUrl: newUrl } = await authService.uploadProfilePicture(file)
       setProfilePictureUrl(newUrl)
-      
+
       // Auto-save the profile picture update
       const updatedUser = await authService.updateProfile({ profilePictureUrl: newUrl })
-      login(updatedUser, localStorage.getItem('access_token') || '')
+      setUser(updatedUser)
       showToast('success', 'Profile picture updated')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to upload picture:', error)
-      showToast('error', 'Failed to upload profile picture')
+      const errorMsg = error?.response?.data?.message || error?.message || 'Failed to upload profile picture'
+      showToast('error', errorMsg)
     } finally {
       setIsUploading(false)
     }
