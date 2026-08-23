@@ -54,165 +54,106 @@ cloudvault/
 │   │   ├── pages/          # Page components
 │   │   ├── services/       # API services
 │   │   └── types/          # TypeScript types
-│   └── public/             # Static assets
-├── .env.example             # Environment variables template
-└── README.md
+│   └── ...
+└── ...
 ```
 
-## Prerequisites
+## Environment Setup
 
-- **Java 17+** (for backend)
-- **Node.js 18+** and **npm** (for frontend)
-- **Maven 3.8+** (for backend build)
-- **Supabase account** (for database and storage)
-- **Google Cloud Console project** (for OAuth)
+### Backend
 
-## Setup
-
-### 1. Clone and Configure
+Copy `.env.example` to `.env` and configure:
 
 ```bash
-# Clone the repository
-git clone https://github.com/Ritik0712-ai/storeit.git
-cd storeit
-
-# Copy environment files
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
+cd backend
+cp .env.example .env
 ```
 
-### 2. Configure Backend Environment
+Required variables:
+- `DATABASE_URL` - PostgreSQL connection string (from Supabase)
+- `JWT_SECRET` - JWT signing secret (min 256 bits)
+- `SUPABASE_URL` - Your Supabase project URL
+- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key
+- `GOOGLE_CLIENT_ID` - Google OAuth client ID
+- `GOOGLE_CLIENT_SECRET` - Google OAuth client secret
 
-Edit `backend/.env` with your credentials:
+### Frontend
 
-```env
-# Database (from Supabase)
-DATABASE_URL=postgresql://postgres:[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres
-DATABASE_USER=postgres
-DATABASE_PASSWORD=[PASSWORD]
+Copy `.env.example` to `.env`:
 
-# JWT - Generate with: openssl rand -base64 32
-JWT_SECRET=[YOUR-256-BIT-SECRET]
-
-# Supabase
-SUPABASE_URL=https://[PROJECT-REF].supabase.co
-SUPABASE_SERVICE_ROLE_KEY=[YOUR-ANON-KEY]
-SUPABASE_STORAGE_BUCKET=cloudvault-files
-
-# Google OAuth (from Google Cloud Console)
-GOOGLE_CLIENT_ID=[YOUR-CLIENT-ID].apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=[YOUR-CLIENT-SECRET]
-
-# Frontend Origin
-FRONTEND_ORIGIN=http://localhost:5173
+```bash
+cd frontend
+cp .env.example .env
 ```
 
-### 3. Configure Frontend Environment
+Required variables:
+- `VITE_SUPABASE_URL` - Supabase project URL
+- `VITE_SUPABASE_ANON_KEY` - Supabase anon key
+- `VITE_API_URL` - Backend API URL (default: http://localhost:8080/api/v1)
 
-Edit `frontend/.env`:
-
-```env
-VITE_SUPABASE_URL=https://[PROJECT-REF].supabase.co
-VITE_SUPABASE_ANON_KEY=[YOUR-ANON-KEY]
-VITE_GOOGLE_CLIENT_ID=[YOUR-CLIENT-ID].apps.googleusercontent.com
-VITE_API_URL=http://localhost:8080/api/v1
-```
-
-### 4. Supabase Setup
-
-1. Create a new Supabase project
-2. Enable **Email Auth** in Authentication settings
-3. Create a storage bucket named `cloudvault-files`
-4. Set bucket to private (authenticated access only)
-5. Add storage policies for authenticated uploads/downloads
-
-### 5. Google OAuth Setup
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com)
-2. Create a new project or select existing
-3. Enable the **Google+ API**
-4. Create OAuth 2.0 credentials (Web application type)
-5. Add authorized redirect URI: `{FRONTEND_ORIGIN}/oauth/callback`
-
-## Running the Application
+## Running Locally
 
 ### Backend
 
 ```bash
 cd backend
-
-# Install dependencies and run
 ./mvnw spring-boot:run
-
-# Or build and run JAR
-./mvnw clean package
-java -jar target/cloudvault-backend-1.0.0.jar
 ```
 
-The backend runs on **http://localhost:8080**
+Or with Maven:
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.arguments="--spring.config.additional-location=file:.env"
+```
 
 ### Frontend
 
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
-
-# Run development server
 npm run dev
 ```
-
-The frontend runs on **http://localhost:5173**
 
 ## API Endpoints
 
 ### Authentication
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/auth/register` | Register new user |
-| POST | `/api/v1/auth/login` | Login |
-| POST | `/api/v1/auth/refresh` | Refresh access token |
-| POST | `/api/v1/auth/logout` | Logout |
-| GET | `/api/v1/auth/me` | Get current user |
-
-### Folders
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/folders` | Create folder |
-| GET | `/api/v1/folders/:id` | Get folder with children |
-| PATCH | `/api/v1/folders/:id` | Update folder |
-| DELETE | `/api/v1/folders/:id` | Move to trash |
+- `POST /api/v1/auth/register` - Register new user
+- `POST /api/v1/auth/login` - Login user
+- `POST /api/v1/auth/refresh` - Refresh access token
+- `POST /api/v1/auth/logout` - Logout user
+- `GET /api/v1/auth/me` - Get current user
 
 ### Files
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/files/init-upload` | Initialize upload |
-| POST | `/api/v1/files/:id/complete-upload` | Complete upload |
-| GET | `/api/v1/files/:id` | Get file info |
-| GET | `/api/v1/files/:id/download-url` | Get download URL |
-| PATCH | `/api/v1/files/:id` | Update file |
-| DELETE | `/api/v1/files/:id` | Move to trash |
+- `POST /api/v1/files/init-upload` - Initialize upload
+- `POST /api/v1/files/{id}/complete-upload` - Complete upload
+- `GET /api/v1/files/{id}` - Get file info
+- `GET /api/v1/files/{id}/download-url` - Get download URL
+- `PATCH /api/v1/files/{id}` - Update file
+- `DELETE /api/v1/files/{id}` - Delete file (soft delete)
+
+### Folders
+- `POST /api/v1/folders` - Create folder
+- `GET /api/v1/folders/{id}` - Get folder with children
+- `PATCH /api/v1/folders/{id}` - Update folder
+- `DELETE /api/v1/folders/{id}` - Delete folder
 
 ### Sharing
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/shares` | Create share |
-| GET | `/api/v1/shares/shared-with-me` | Get shared items |
-| DELETE | `/api/v1/shares/:id` | Revoke share |
-| POST | `/api/v1/public-links` | Create public link |
-| GET | `/api/v1/public-links/:token` | Get link info |
+- `POST /api/v1/shares` - Share with user
+- `GET /api/v1/shares/shared-with-me` - Get shared items
+- `DELETE /api/v1/shares/{id}` - Revoke share
 
-### Search & Organization
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/search?q=&type=` | Search files/folders |
-| GET | `/api/v1/stars` | Get starred items |
-| POST | `/api/v1/stars/:type/:id` | Star item |
-| DELETE | `/api/v1/stars/:type/:id` | Unstar item |
-| GET | `/api/v1/trash` | Get trash items |
-| POST | `/api/v1/trash/:type/:id/restore` | Restore item |
-| DELETE | `/api/v1/trash/:type/:id` | Permanent delete |
+### Public Links
+- `POST /api/v1/public-links` - Create public link
+- `GET /api/v1/public-links/{token}` - Get link info
+- `DELETE /api/v1/public-links/{id}` - Revoke link
+
+### Other
+- `GET /api/v1/search?q=&type=` - Search files/folders
+- `GET /api/v1/stars` - Get starred items
+- `POST /api/v1/stars/{type}/{id}` - Star item
+- `DELETE /api/v1/stars/{type}/{id}` - Unstar item
+- `GET /api/v1/trash` - Get trash items
+- `POST /api/v1/trash/{type}/{id}/restore` - Restore item
+- `DELETE /api/v1/trash/{type}/{id}` - Permanently delete
 
 ## Permission Model
 
