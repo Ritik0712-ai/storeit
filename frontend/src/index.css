@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #3B82F6;
+  --color-primary-hover: #2563EB;
+  --color-bg: #FFFFFF;
+  --color-bg-subtle: #F8FAFC;
+  --color-border: #E2E8F0;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #64748B;
+  --color-success: #16A34A;
+  --color-warning: #D97706;
+  --color-danger: #DC2626;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white px-4 py-2 rounded-md font-medium
+           hover:bg-primary-hover transition-colors duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-transparent text-text-primary px-4 py-2 rounded-md font-medium
+           border border-border hover:bg-bg-subtle transition-colors duration-150;
+  }
+
+  .btn-danger {
+    @apply bg-danger text-white px-4 py-2 rounded-md font-medium
+           hover:opacity-90 transition-colors duration-150;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-text-secondary px-3 py-2 rounded-md
+           hover:bg-bg-subtle hover:text-text-primary transition-colors duration-150;
+  }
+
+  .input {
+    @apply w-full px-3 py-2 border border-border rounded-md
+           focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
+           placeholder:text-text-secondary;
+  }
+
+  .card {
+    @apply border border-border rounded-lg bg-white;
+  }
+
+  .card-hover {
+    @apply card hover:border-primary hover:shadow-sm transition-all duration-150;
+  }
+}
