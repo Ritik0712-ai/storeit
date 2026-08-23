@@ -4,6 +4,8 @@ export interface User {
   email: string
   displayName: string
   authProvider: 'local' | 'google'
+  profilePictureUrl?: string
+  mobileNumber?: string
   createdAt: string
 }
 

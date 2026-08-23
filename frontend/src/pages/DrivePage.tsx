@@ -25,8 +25,7 @@ export default function DrivePage() {
       if (folderId) {
         return fileService.getFolder(folderId)
       }
-      // Root folder - return empty structure, children fetched separately
-      return { id: null, name: 'My Drive', children: [] as (FolderType | FileItem)[] }
+      return fileService.getRootFolder()
     },
   })
 
@@ -67,6 +66,7 @@ export default function DrivePage() {
     onSuccess: () => {
       showToast('success', 'Moved to trash')
       queryClient.invalidateQueries({ queryKey: ['folder'] })
+      queryClient.invalidateQueries({ queryKey: ['storage'] })
     },
     onError: () => showToast('error', 'Failed to delete'),
   })
@@ -85,9 +85,16 @@ export default function DrivePage() {
   const folders = items.filter((item): item is FolderType => 'parentFolderId' in item)
   const files = items.filter((item): item is FileItem => 'folderId' !== undefined && 'storagePath' in item)
 
-  const handleItemClick = (item: FolderType | FileItem) => {
+  const handleItemClick = async (item: FolderType | FileItem) => {
     if ('parentFolderId' in item) {
       navigate(`/drive/${item.id}`)
+    } else {
+      try {
+        const { downloadUrl } = await fileService.getDownloadUrl(item.id)
+        window.open(downloadUrl, '_blank')
+      } catch (error) {
+        showToast('error', 'Failed to get file URL')
+      }
     }
   }
 
@@ -164,7 +171,7 @@ export default function DrivePage() {
                 type="file"
                 isStarred={file.isStarred}
                 size={formatSize(file.sizeBytes)}
-                onClick={() => {}}
+                onClick={() => handleItemClick(file)}
                 onStar={() => starMutation.mutate({ type: 'file', id: file.id, starred: !!file.isStarred })}
                 onDelete={() => deleteMutation.mutate({ type: 'file', id: file.id })}
                 icon={getFileIcon(file.mimeType)}

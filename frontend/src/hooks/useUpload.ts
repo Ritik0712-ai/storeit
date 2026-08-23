@@ -58,8 +58,9 @@ export function useUploadFiles() {
               showToast('success', `${file.name} uploaded successfully`)
 
               // Refresh folder contents
-              queryClient.invalidateQueries({ queryKey: ['folder', currentFolderId] })
+              queryClient.invalidateQueries({ queryKey: ['folder', currentFolderId || 'root'] })
               queryClient.invalidateQueries({ queryKey: ['files'] })
+              queryClient.invalidateQueries({ queryKey: ['storage'] })
             } else {
               updateUpload(fileId, { status: 'error', error: 'Upload failed' })
               showToast('error', `Failed to upload ${file.name}`)
@@ -87,7 +88,7 @@ export function useUploadFiles() {
       try {
         await fileService.createFolder(name, parentId)
         showToast('success', `Folder "${name}" created`)
-        queryClient.invalidateQueries({ queryKey: ['folder', parentId] })
+        queryClient.invalidateQueries({ queryKey: ['folder', parentId || 'root'] })
       } catch (error) {
         showToast('error', 'Failed to create folder')
       }

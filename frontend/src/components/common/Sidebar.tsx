@@ -1,13 +1,20 @@
 import { NavLink } from 'react-router-dom'
 import { Cloud, HardDrive, Users, Star, Trash2, Plus, FolderPlus, Upload } from 'lucide-react'
 import { useState } from 'react'
-import { useAppStore } from '../../context/AppContext'
+import { useQuery } from '@tanstack/react-query'
 import { useAuthStore } from '../../context/AuthContext'
+import { fileService } from '../../services/fileService'
 import NewItemMenu from '../drive/NewItemMenu'
 
 export default function Sidebar() {
   const { user } = useAuthStore()
   const [showNewMenu, setShowNewMenu] = useState(false)
+
+  const { data: storageData } = useQuery({
+    queryKey: ['storage'],
+    queryFn: () => fileService.getStorageUsed(),
+    refetchInterval: 30000 // Refetch every 30s
+  })
 
   const navItems = [
     { to: '/drive', icon: HardDrive, label: 'My Drive' },
@@ -15,6 +22,17 @@ export default function Sidebar() {
     { to: '/starred', icon: Star, label: 'Starred' },
     { to: '/trash', icon: Trash2, label: 'Trash' },
   ]
+
+  const storageUsed = storageData?.storageUsed || 0
+  const maxStorage = 5 * 1024 * 1024 * 1024 // 5 GB
+  const storagePercentage = Math.min((storageUsed / maxStorage) * 100, 100)
+
+  const formatSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+    if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+    return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`
+  }
 
   return (
     <aside className="w-60 bg-bg-subtle border-r border-border flex flex-col">
@@ -60,9 +78,9 @@ export default function Sidebar() {
       <div className="px-4 py-3 border-t border-border">
         <p className="text-xs text-text-secondary">Storage</p>
         <div className="mt-1 h-1.5 bg-border rounded-full overflow-hidden">
-          <div className="h-full bg-primary/30 w-1/4 rounded-full" />
+          <div className="h-full bg-primary transition-all" style={{ width: `${storagePercentage}%` }} />
         </div>
-        <p className="text-xs text-text-secondary mt-1">0 MB of 5 GB used</p>
+        <p className="text-xs text-text-secondary mt-1">{formatSize(storageUsed)} of 5 GB used</p>
       </div>
     </aside>
   )

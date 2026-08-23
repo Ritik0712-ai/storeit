@@ -11,6 +11,11 @@ export const fileService = {
     return response.data
   },
 
+  async getRootFolder(): Promise<Folder & { children: (FileItem | Folder)[] }> {
+    const response = await api.get('/folders/root')
+    return response.data
+  },
+
   async getFolder(id: string): Promise<Folder & { children: (FileItem | Folder)[] }> {
     const response = await api.get(`/folders/${id}`)
     return response.data
@@ -63,5 +68,10 @@ export const fileService = {
 
   async deleteFile(id: string): Promise<void> {
     await api.delete(`/files/${id}`)
+  },
+
+  async getStorageUsed(): Promise<{ storageUsed: number }> {
+    const response = await api.get<{ storageUsed: number }>('/files/storage-used')
+    return response.data
   },
 }

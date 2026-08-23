@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Search, User, LogOut } from 'lucide-react'
 import { useAuthStore } from '../../context/AuthContext'
 import { authService } from '../../services/authService'
+import ProfileSettingsModal from './ProfileSettingsModal'
 
 export default function TopBar() {
   const { user, logout } = useAuthStore()
@@ -41,6 +42,8 @@ export default function TopBar() {
     .toUpperCase()
     .slice(0, 2) || 'U'
 
+  const [showProfileModal, setShowProfileModal] = useState(false)
+
   return (
     <header className="h-14 border-b border-border flex items-center px-4 gap-4 bg-white">
       {/* Breadcrumb area - this will be overridden by page content */}
@@ -66,17 +69,42 @@ export default function TopBar() {
           onClick={() => setShowDropdown(!showDropdown)}
           className="flex items-center gap-2 p-1 rounded-full hover:bg-bg-subtle transition-colors"
         >
-          <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-medium">
-            {initials}
+          <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-medium overflow-hidden">
+            {user?.profilePictureUrl ? (
+              <img src={user.profilePictureUrl} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              initials
+            )}
           </div>
         </button>
 
         {showDropdown && (
           <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-border rounded-lg shadow-lg py-2 z-50">
-            <div className="px-4 py-2 border-b border-border">
-              <p className="font-medium text-text-primary">{user?.displayName}</p>
-              <p className="text-sm text-text-secondary">{user?.email}</p>
+            <div className="px-4 py-3 border-b border-border flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-medium overflow-hidden flex-shrink-0">
+                {user?.profilePictureUrl ? (
+                  <img src={user.profilePictureUrl} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  initials
+                )}
+              </div>
+              <div className="overflow-hidden">
+                <p className="font-medium text-text-primary truncate">{user?.displayName}</p>
+                <p className="text-sm text-text-secondary truncate">{user?.email}</p>
+              </div>
             </div>
+            
+            <button
+              onClick={() => {
+                setShowDropdown(false)
+                setShowProfileModal(true)
+              }}
+              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-text-secondary hover:bg-bg-subtle hover:text-text-primary transition-colors"
+            >
+              <User className="w-4 h-4" />
+              Profile Settings
+            </button>
+            
             <button
               onClick={handleLogout}
               className="w-full flex items-center gap-2 px-4 py-2 text-sm text-text-secondary hover:bg-bg-subtle hover:text-text-primary transition-colors"
@@ -87,6 +115,10 @@ export default function TopBar() {
           </div>
         )}
       </div>
+
+      {showProfileModal && (
+        <ProfileSettingsModal onClose={() => setShowProfileModal(false)} />
+      )}
     </header>
   )
 }

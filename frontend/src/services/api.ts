@@ -4,7 +4,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || ''
 
 // Create axios instance
 const api: AxiosInstance = axios.create({
-  baseURL: `${API_BASE_URL}/api/v1`,
+  baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ api.interceptors.response.use(
 
       try {
         const response = await axios.post(
-          `${API_BASE_URL}/api/v1/auth/refresh`,
+          `${API_BASE_URL}/auth/refresh`,
           {},
           { withCredentials: true }
         )
