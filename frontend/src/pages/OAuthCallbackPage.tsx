@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../context/AuthContext'
-import { authService } from '../services/authService'
 import { useToast } from '../components/common/Toast'
 import api from '../services/api'
 import { setAccessToken } from '../services/api'

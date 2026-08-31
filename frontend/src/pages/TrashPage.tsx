@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Trash2, RotateCcw, AlertTriangle } from 'lucide-react'
 import { trashService } from '../services/searchService'
 import { useToast } from '../components/common/Toast'
-import type { FileItem, Folder } from '../types'
 
 export default function TrashPage() {
   const queryClient = useQueryClient()

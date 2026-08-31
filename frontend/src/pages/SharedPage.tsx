@@ -1,8 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { Users, Folder, File, Download } from 'lucide-react'
+import { Users, Folder, File } from 'lucide-react'
 import { shareService } from '../services/shareService'
-import type { FileItem, Folder as FolderType } from '../types'
 
 export default function SharedPage() {
   const { data: sharedItems, isLoading } = useQuery({

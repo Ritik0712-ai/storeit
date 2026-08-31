@@ -27,7 +27,7 @@ export function useUploadFiles() {
       for (const file of files) {
         try {
           // Initialize upload
-          const { fileId, uploadUrl, storagePath } = await fileService.initUpload(
+          const { fileId, uploadUrl } = await fileService.initUpload(
             file.name,
             file.type,
             file.size,

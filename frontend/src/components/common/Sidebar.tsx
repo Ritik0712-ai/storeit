@@ -1,13 +1,11 @@
 import { NavLink } from 'react-router-dom'
-import { Cloud, HardDrive, Users, Star, Trash2, Plus, FolderPlus, Upload } from 'lucide-react'
+import { Cloud, HardDrive, Users, Star, Trash2, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useAuthStore } from '../../context/AuthContext'
 import { fileService } from '../../services/fileService'
 import NewItemMenu from '../drive/NewItemMenu'
 
 export default function Sidebar() {
-  const { user } = useAuthStore()
   const [showNewMenu, setShowNewMenu] = useState(false)
 
   const { data: storageData } = useQuery({

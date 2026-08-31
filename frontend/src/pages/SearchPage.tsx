@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { Search as SearchIcon, Folder, File } from 'lucide-react'
 import { searchService } from '../services/searchService'
-import type { FileItem, Folder as FolderType } from '../types'
 
 export default function SearchPage() {
   const [searchParams] = useSearchParams()

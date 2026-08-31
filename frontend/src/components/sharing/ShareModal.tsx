@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Link, Mail, Copy, Check, ExternalLink } from 'lucide-react'
+import { X, Link, Mail, Copy } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { shareService } from '../../services/shareService'
 import { useToast } from '../common/Toast'
@@ -51,7 +51,7 @@ export default function ShareModal({
       return shareService.createPublicLink(resourceType, resourceId, options)
     },
     onSuccess: (data) => {
-      setCreatedLink(data.shareUrl)
+      setCreatedLink(`${window.location.origin}/share/${data.token}`)
       showToast('success', 'Link created')
     },
     onError: () => showToast('error', 'Failed to create link'),

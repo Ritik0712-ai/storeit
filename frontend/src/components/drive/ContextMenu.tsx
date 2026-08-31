@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Star, Share2, Download, Trash2, FolderInput, MoreVertical, Edit2, Folder } from 'lucide-react'
+import { Star, Share2, Download, Trash2, FolderInput, Edit2 } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { fileService } from '../../services/fileService'
 import { starService } from '../../services/searchService'
@@ -12,7 +11,6 @@ interface ContextMenuProps {
   type: 'file' | 'folder'
   position: { x: number; y: number }
   onClose: () => void
-  onRename: () => void
   onShare: () => void
   onMove: () => void
 }
@@ -22,11 +20,9 @@ export default function ContextMenu({
   type,
   position,
   onClose,
-  onRename,
   onShare,
   onMove,
 }: ContextMenuProps) {
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { showToast } = useToast()
   const menuRef = useRef<HTMLDivElement>(null)
