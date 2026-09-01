@@ -1,5 +1,7 @@
 package com.cloudvault.entity;
 
+import com.cloudvault.entity.converter.ResourceTypeConverter;
+import com.cloudvault.entity.converter.RoleConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,7 +25,7 @@ public class Share {
     private UUID id;
 
     @Column(name = "resource_type", nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = ResourceTypeConverter.class)
     private ResourceType resourceType;
 
     @Column(name = "resource_id", nullable = false)
@@ -38,7 +40,7 @@ public class Share {
     private User sharedWith;
 
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = RoleConverter.class)
     private Role role;
 
     @CreationTimestamp

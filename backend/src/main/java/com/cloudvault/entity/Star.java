@@ -1,5 +1,6 @@
 package com.cloudvault.entity;
 
+import com.cloudvault.entity.converter.ResourceTypeConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -27,7 +28,7 @@ public class Star {
     private User user;
 
     @Column(name = "resource_type", nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = ResourceTypeConverter.class)
     private Share.ResourceType resourceType;
 
     @Column(name = "resource_id", nullable = false)
