@@ -67,6 +67,7 @@ export default function DrivePage() {
       showToast('success', 'Moved to trash')
       queryClient.invalidateQueries({ queryKey: ['folder'] })
       queryClient.invalidateQueries({ queryKey: ['storage'] })
+      queryClient.invalidateQueries({ queryKey: ['trash'] })
     },
     onError: () => showToast('error', 'Failed to delete'),
   })

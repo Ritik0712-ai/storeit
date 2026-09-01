@@ -20,6 +20,8 @@ export default function TrashPage() {
     onSuccess: () => {
       showToast('success', 'Item restored')
       queryClient.invalidateQueries({ queryKey: ['trash'] })
+      queryClient.invalidateQueries({ queryKey: ['folder'] })
+      queryClient.invalidateQueries({ queryKey: ['storage'] })
     },
     onError: () => showToast('error', 'Failed to restore'),
   })
@@ -30,6 +32,7 @@ export default function TrashPage() {
     onSuccess: () => {
       showToast('success', 'Item permanently deleted')
       queryClient.invalidateQueries({ queryKey: ['trash'] })
+      queryClient.invalidateQueries({ queryKey: ['storage'] })
       setConfirmDelete(null)
     },
     onError: () => showToast('error', 'Failed to delete'),
