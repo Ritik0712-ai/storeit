@@ -77,7 +77,12 @@ public class AuthDTO {
 
     @Data
     public static class OAuth2CallbackRequest {
+        @NotBlank(message = "Authorization code is required")
         private String code;
+
+        // The exact redirect_uri the frontend used when it sent the user to Google;
+        // must match what we send Google in the token exchange or Google rejects it.
+        private String redirectUri;
     }
 
     @Data

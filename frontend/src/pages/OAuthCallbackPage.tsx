@@ -29,8 +29,10 @@ export default function OAuthCallbackPage() {
       }
 
       try {
-        // Exchange code for tokens via backend
-        const response = await api.post('/auth/oauth2/callback', { code })
+        // Exchange code for tokens via backend. redirectUri must match exactly what
+        // was sent to Google when starting the flow (authService.getGoogleOAuthUrl).
+        const redirectUri = `${window.location.origin}/oauth/callback`
+        const response = await api.post('/auth/oauth2/callback', { code, redirectUri })
         const { accessToken, user } = response.data
         setAccessToken(accessToken)
         setUser(user)
