@@ -4,6 +4,7 @@ import com.cloudvault.dto.ShareDTO;
 import com.cloudvault.entity.*;
 import com.cloudvault.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,13 @@ public class ShareService {
     private final StarRepository starRepository;
     private final PermissionService permissionService;
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${app.cors.allowed-origins}")
+    private String allowedOrigins;
+
+    private String frontendBaseUrl() {
+        return allowedOrigins.split(",")[0].trim();
+    }
 
     @Transactional
     public ShareDTO.ShareResponse createShare(UUID userId, ShareDTO.CreateShareRequest request) {
@@ -109,7 +117,7 @@ public class ShareService {
         // Check if link already exists
         Optional<PublicLink> existingLink = publicLinkRepository.findActiveByResource(resourceType, resourceId);
         if (existingLink.isPresent()) {
-            return ShareDTO.PublicLinkResponse.from(existingLink.get(), "");
+            return ShareDTO.PublicLinkResponse.from(existingLink.get(), frontendBaseUrl());
         }
 
         String token = UUID.randomUUID().toString() + UUID.randomUUID().toString().replace("-", "");
@@ -134,7 +142,7 @@ public class ShareService {
                 .build();
 
         link = publicLinkRepository.save(link);
-        return ShareDTO.PublicLinkResponse.from(link, "");
+        return ShareDTO.PublicLinkResponse.from(link, frontendBaseUrl());
     }
 
     @Transactional(readOnly = true)

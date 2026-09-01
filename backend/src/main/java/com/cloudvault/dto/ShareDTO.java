@@ -2,6 +2,7 @@ package com.cloudvault.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
@@ -17,7 +18,7 @@ public class ShareDTO {
         @Pattern(regexp = "^(file|folder)$", message = "Resource type must be 'file' or 'folder'")
         private String resourceType;
 
-        @NotBlank(message = "Resource ID is required")
+        @NotNull(message = "Resource ID is required")
         private UUID resourceId;
 
         @NotBlank(message = "Target user email is required")
@@ -91,7 +92,7 @@ public class ShareDTO {
         @Pattern(regexp = "^(file|folder)$", message = "Resource type must be 'file' or 'folder'")
         private String resourceType;
 
-        @NotBlank(message = "Resource ID is required")
+        @NotNull(message = "Resource ID is required")
         private UUID resourceId;
 
         private String expiresAt;
