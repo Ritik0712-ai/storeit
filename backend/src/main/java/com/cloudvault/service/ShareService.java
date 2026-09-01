@@ -120,7 +120,8 @@ public class ShareService {
             return ShareDTO.PublicLinkResponse.from(existingLink.get(), frontendBaseUrl());
         }
 
-        String token = UUID.randomUUID().toString() + UUID.randomUUID().toString().replace("-", "");
+        // public_links.token is VARCHAR(64); two dash-stripped UUIDs = exactly 64 chars.
+        String token = UUID.randomUUID().toString().replace("-", "") + UUID.randomUUID().toString().replace("-", "");
         String passwordHash = null;
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
             passwordHash = passwordEncoder.encode(request.getPassword());
