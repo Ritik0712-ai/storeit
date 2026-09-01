@@ -73,7 +73,7 @@ public class ShareService {
                 .role(role)
                 .build();
 
-        share = shareRepository.save(share);
+        share = shareRepository.saveAndFlush(share);
         return ShareDTO.ShareResponse.from(share);
     }
 
@@ -141,7 +141,7 @@ public class ShareService {
                 .revoked(false)
                 .build();
 
-        link = publicLinkRepository.save(link);
+        link = publicLinkRepository.saveAndFlush(link);
         return ShareDTO.PublicLinkResponse.from(link, frontendBaseUrl());
     }
 
