@@ -57,10 +57,13 @@ export default function SignupPage() {
       showToast('success', 'Account created successfully!')
       navigate('/drive')
     } catch (err: any) {
-      if (err.response?.data?.message?.includes('email')) {
+      const message: string = err.response?.data?.message || ''
+      if (message.toLowerCase().includes('email')) {
         setErrors({ email: 'This email is already in use' })
+      } else if (message) {
+        showToast('error', message)
       } else {
-        showToast('error', 'Failed to create account')
+        showToast('error', 'Failed to create account. Please try again.')
       }
     } finally {
       setLoading(false)
